@@ -1,14 +1,14 @@
 import torch
 from torch.nn import functional as F
+import requests
+import torch.nn as nn
 
 # Implemented with the walkthrough by Andrej Karpathy, co-founder of OpenAI
-
-import torch.nn as nn
 
 # hyperparameters
 batch_size = 16 # how many independent sequences will we process in parallel?
 block_size = 32 # what is the maximum context length for predictions?
-max_iters = 5000
+max_iters = 3000 # this is low because we're only doing a demo!
 eval_interval = 100
 learning_rate = 1e-3
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -21,21 +21,22 @@ dropout = 0.0
 torch.manual_seed(1337)
 
 # Get the data of the training set and train the model
-!wget https://raw.githubusercontent.com/nataliakusmirek/emailGPT/main/training.txt
-
+url = "https://raw.githubusercontent.com/nataliakusmirek/emailGPT/main/training.txt"
 
 # Read in to inspect
-with open('input.txt', 'r', encoding='utf-8') as f:
-    text = f.read()
+response = requests.get(url)
+text = response.text
+
 
 # Here are all the unique characters of this text
 chars = sorted(list(set(text)))
+unknown_token_index = len(chars)
 vocab_size = len(chars)
 
 # Create a mapping from character to integers, aka. TOKENIZE
 char_to_int = {c: i for i, c in enumerate(chars)}
 int_to_char = {i: c for i, c in enumerate(chars)}
-encode = lambda x: [char_to_int[c] for c in x] # encoder: take a string, output a list
+encode = lambda x: [char_to_int[c] if c in char_to_int else unknown_token_index for c in x] # encoder: take a string, output a list
 decode = lambda x: ''.join([int_to_char[c] for c in x]) # decoder: take a list, output a string
 
 
