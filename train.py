@@ -1,6 +1,9 @@
 import torch
-import torch.nn as nn
 from torch.nn import functional as F
+
+# Implemented with the walkthrough by Andrej Karpathy, co-founder of OpenAI
+
+import torch.nn as nn
 
 # hyperparameters
 batch_size = 16 # how many independent sequences will we process in parallel?
@@ -213,4 +216,14 @@ for iter in range(max_iters):
 
 # generate from the model
 context = torch.zeros((1, 1), dtype=torch.long, device=device)
-print(decode(m.generate(context, max_new_tokens=2000)[0].tolist()))
+
+# Prompt for email type
+email_type = input("Enter the type of email: ")
+
+# Generate text based on the email type
+prompt = f"Subject: {email_type}\n\n"
+prompt_encoded = torch.tensor(encode(prompt), dtype=torch.long, device=device).unsqueeze(0)
+generated_text = m.generate(prompt_encoded, max_new_tokens=2000)[0].tolist()
+generated_text_decoded = decode(generated_text)
+
+print(generated_text_decoded)
