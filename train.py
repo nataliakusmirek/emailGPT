@@ -8,7 +8,7 @@ import torch.nn as nn
 # hyperparameters
 batch_size = 16 # how many independent sequences will we process in parallel?
 block_size = 32 # what is the maximum context length for predictions?
-max_iters = 3000 # this is low because we're only doing a demo!
+max_iters = 4000 # this is low because we're only doing a demo! however, the lower the iterations the worse trained the model is..
 eval_interval = 100
 learning_rate = 1e-3
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -215,16 +215,7 @@ for iter in range(max_iters):
     loss.backward()
     optimizer.step()
 
+
 # generate from the model
 context = torch.zeros((1, 1), dtype=torch.long, device=device)
-
-# Prompt for email type
-email_type = input("Enter the type of email: ")
-
-# Generate text based on the email type
-prompt = f"Subject: {email_type}\n\n"
-prompt_encoded = torch.tensor(encode(prompt), dtype=torch.long, device=device).unsqueeze(0)
-generated_text = m.generate(prompt_encoded, max_new_tokens=2000)[0].tolist()
-generated_text_decoded = decode(generated_text)
-
-print(generated_text_decoded)
+print(decode(m.generate(context, max_new_tokens=2000)[0].tolist()))
